@@ -84,8 +84,8 @@ class LaTreApp(Gtk.Application):
 			for a in c.get_attributes(EBook.ContactField.TEL):
 				value = a.get_value()
 				q = EBook.BookQuery.vcard_field_test('TEL',
-													 EBook.BookQueryTest.CONTAINS,
-													 value)
+				                                     EBook.BookQueryTest.CONTAINS,
+				                                     value)
 				queries.append(q.to_string())
 			query = "(or {})".format(' '.join(queries))
 			r = abook.get_contacts_sync(query, None)
