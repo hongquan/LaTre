@@ -28,7 +28,7 @@ def uifile(name):
 		raise IOError('UI file {} does not exist.'.format(fpath))
 	return fpath
 
-def import_contacts(files):
+def contacts_from_files(files):
 	contacts = []
 	with concurrent.futures.ThreadPoolExecutor(max_workers=5) as e:
 		fts = [e.submit(contact_from_file, f) for f in files]

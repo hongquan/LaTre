@@ -78,18 +78,8 @@ class LaTreApp(Gtk.Application):
 
 		try:
 			Gtk.main_iteration()
-			contacts = data.import_contacts(files)
-			c = contacts[0]
-			queries = []
-			for a in c.get_attributes(EBook.ContactField.TEL):
-				value = a.get_value()
-				q = EBook.BookQuery.vcard_field_test('TEL',
-				                                     EBook.BookQueryTest.CONTAINS,
-				                                     value)
-				queries.append(q.to_string())
-			query = "(or {})".format(' '.join(queries))
-			r = abook.get_contacts_sync(query, None)
-			abook.add_contacts(contacts, None, self.contacts_import_done, None)
+			contacts = data.contacts_from_files(files)
+			model.contacts_to_edataserver(contacts, self.contacts_import_done)
 
 		except UnboundLocalError: # files not defined
 			return

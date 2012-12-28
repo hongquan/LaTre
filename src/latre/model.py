@@ -30,3 +30,16 @@ def get_first_phone(contact):
 		prop = contact.get_property(p)
 		if prop:
 			return prop
+
+def contacts_to_edataserver(contacts, callback):
+	c = contacts[0]
+	queries = []
+	for a in c.get_attributes(EBook.ContactField.TEL):
+		value = a.get_value()
+		q = EBook.BookQuery.vcard_field_test('TEL',
+		                                     EBook.BookQueryTest.CONTAINS,
+		                                     value)
+		queries.append(q.to_string())
+	query = "(or {})".format(' '.join(queries))
+	r = abook.get_contacts_sync(query, None)
+	abook.add_contacts(contacts, None, callback, None)
