@@ -147,6 +147,7 @@ class LaTreApp(Gtk.Application):
 
 
 	def quit(self):
+		abook.cancel_all()
 		super(LaTreApp, self).quit()
 
 
