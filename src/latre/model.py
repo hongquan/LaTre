@@ -8,6 +8,7 @@ from gi.repository import EDataServer
 from gi.repository import EBook
 
 PHONE_PROPS = (
+	'primary-phone',
 	'mobile-phone',
 	'business-phone',
 	'home-phone',
@@ -15,7 +16,6 @@ PHONE_PROPS = (
 	'home-phone-2',
 	'company-phone',
 	'other-phone',
-	'primary-phone',
 	'assistant-phone',
 	'callback-phone',
 	'car-phone',
@@ -68,6 +68,7 @@ def try_solve_conflicts(newcontact, conflicts):
 	# If there are more, we solve between these contacts first, then solve
 	# the last remain with the new.
 	existing = conflicts[0]
+	print('Existing', existing.get_property('mobile-phone'))
 	for other_existing in conflicts[1:]:
 		abook.remove_contact_sync(other_existing, None)
 		merge_contacts(existing, other_existing)

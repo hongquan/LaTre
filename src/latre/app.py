@@ -61,7 +61,7 @@ class LaTreApp(Gtk.Application):
 
 	def on_mainwindow_realize(self, widget):
 		self.populate_contact_list()
-		self.ui.mainwindow.resize(400, 400)
+		self.ui.mainwindow.resize(500, 400)
 
 
 	def on_quit_btn_clicked(self, widget, data=None):
