@@ -66,6 +66,10 @@ class LaTreApp(Gtk.Application):
 		Gtk.main_iteration()
 		self.populate_contact_list()
 		self.ui.mainwindow.resize(500, 400)
+		# Set pane position
+		panewidth = self.ui.mainpane.get_allocated_width()
+		position = int(panewidth*2/5)
+		self.ui.mainpane.set_position(position)
 
 
 	def on_quit_btn_clicked(self, widget, data=None):
@@ -110,15 +114,8 @@ class LaTreApp(Gtk.Application):
 		self.ui.import_btn.set_sensitive(False)
 		r, values = abook.get_contacts_sync('#t', None)
 		if r:
-			[self.add_contact_to_treeview(c) for c in values]
+			[self.ui.add_contact_to_treeview(c) for c in values]
 		self.ui.import_btn.set_sensitive(True)
-
-
-	def add_contact_to_treeview(self, contact):
-		name = contact.get_property('name').to_string()
-		number = model.get_first_phone(contact)
-		uid = contact.get_property('id')
-		self.ui.contactlist.append((name, number, None, uid))
 
 
 	# Auto scroll treeview to end

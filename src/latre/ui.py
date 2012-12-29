@@ -1,18 +1,25 @@
 #!/usr/bin/env python3
 
+import urllib.parse
+import gettext
+
 from gi.repository import Gtk
 from gi.repository import GLib
 from gi.repository import Gdk
+from gi.repository import GdkPixbuf
 from gi.repository import EBook
 from gi._glib import GError
+
 from . import data
+from . import model
 from .model import abook, PHONE_PROPS
-import gettext
 
 COL_NAME    = 0
 COL_DEFNUM  = 1
 COL_PHOTO   = 2
 COL_UID     = 3
+
+SIZE_PHOTO_LIST = 40
 
 _ = gettext.gettext
 
@@ -94,6 +101,28 @@ class LaTreUI(UIFactory):
 	def on_contact_tree_unselect_all(self, treeview):
 		self.contactdetail.hide()
 
+	def add_contact_to_treeview(self, contact):
+		name = contact.get_property('name').to_string()
+		number = model.get_first_phone(contact)
+		uid = contact.get_property('id')
+		photo = self.get_contact_photo(contact, SIZE_PHOTO_LIST)
+		self.contactlist.append((name, number, photo, uid))
+
+
+	def get_contact_photo(self, contact, size=SIZE_PHOTO_LIST):
+		photo = contact.get_property('photo')
+		if photo:
+			uri = photo.get_uri()
+			if uri:
+				path = urllib.parse.urlparse(uri).path
+				path = urllib.parse.unquote(path)
+				photo = GdkPixbuf.Pixbuf.new_from_file_at_size(path, size, size)
+			else:
+				inlined = photo.get_inlined()
+				photo = GdkPixbuf.Pixbuf.new_from_inline_at_size(inlined, size, size)
+		return photo
+
+
 	def show_contact(self, uid):
 		Gtk.main_iteration()
 		try:
@@ -103,8 +132,14 @@ class LaTreUI(UIFactory):
 		if not r:
 			return
 		#print(contact.to_string(getattr(EBook.VCardFormat, '30')))
+		# Name
 		name = contact.get_property('name').to_string()
 		self.contactname.set_text(name)
+		# Photo
+		size = self.contactphoto.get_pixel_size()
+		photo = self.get_contact_photo(contact, size)
+		if photo:
+			self.contactphoto.set_from_pixbuf(photo)
 		# Get the children of contactdetail box
 		children = self.contactdetail.get_children()
 		# The 2nd child is for showing phone numbers.

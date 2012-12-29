@@ -96,7 +96,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkHPaned" id="hpaned1">
+          <object class="GtkHPaned" id="mainpane">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="border_width">3</property>
@@ -130,6 +130,9 @@
                             <property name="title" translatable="yes">Photo</property>
                             <child>
                               <object class="GtkCellRendererPixbuf" id="cell_photo"/>
+                              <attributes>
+                                <attribute name="pixbuf">2</attribute>
+                              </attributes>
                             </child>
                           </object>
                         </child>
@@ -212,7 +215,7 @@
                               <object class="GtkImage" id="contactphoto">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="pixel_size">60</property>
+                                <property name="pixel_size">80</property>
                                 <property name="icon_name">avatar-default</property>
                                 <property name="use_fallback">True</property>
                               </object>
