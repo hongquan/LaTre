@@ -49,10 +49,13 @@ class LaTreApp(Gtk.Application):
 		self.ui.set_accel_quit(self.quit)
 
 
-	def on_activated(self, data=None):
+	def on_activated(self, user_data=None):
 		window = self.ui.mainwindow
 		window.set_title(config.appname + ' - ' + config.version)
-		window.set_icon_name(config.package)
+		if data.run_from_source():
+			window.set_icon_from_file(data.iconfile())
+		else:
+			window.set_icon_name(config.package)
 		self.add_window(window)
 		window.show_all()
 		#methods = inspect.getmembers(self, predicate=inspect.ismethod)
@@ -60,6 +63,7 @@ class LaTreApp(Gtk.Application):
 
 
 	def on_mainwindow_realize(self, widget):
+		Gtk.main_iteration()
 		self.populate_contact_list()
 		self.ui.mainwindow.resize(500, 400)
 

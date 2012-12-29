@@ -102,6 +102,7 @@ class LaTreUI(UIFactory):
 			return
 		if not r:
 			return
+		#print(contact.to_string(getattr(EBook.VCardFormat, '30')))
 		name = contact.get_property('name').to_string()
 		self.contactname.set_text(name)
 		# Get the children of contactdetail box
@@ -121,23 +122,51 @@ class LaTreUI(UIFactory):
 
 	def show_phonenumbers(self, contact):
 		grid = Gtk.VBox()
+		# There is a bug in libebook that using Contact.get_poperty() does not
+		# retrieve all phone numbers. So we will apply a trick here.
+		all_numbers = set()    # All numbers found in vcard.
+		tels = contact.get_attributes(EBook.ContactField.TEL)
+		all_numbers = set([t.get_value() for t in tels])
+
+		counted = set()      # Numbers get via Contact.get_poperty()
 		for p in PHONE_PROPS:
 			field = p.replace('-', '_')
 			fid = EBook.Contact.field_id(field)
 			value = contact.get_property(p)
-			if not value or value == '':
+			if not value or value == '' or value in counted:
 				continue
+			counted.add(value)
 			name = EBook.Contact.pretty_name(fid)
-			name = Gtk.Label(name)
-			value = Gtk.Label(value)
-			value.set_selectable(True)
-			value.set_justify(Gtk.Justification.RIGHT)
-			value.set_alignment(1, 0.5)
-			row = Gtk.HBox()
-			row.pack_start(name, False, True, 0)
-			row.pack_start(value, True, True, 0)
+			# Add to UI
+			row = self.phonenumber_to_ui(name, value)
 			grid.pack_start(row, False, True, 0)
+
+		# Check the remain numbers missed by get_property(). This part won't be needed
+		# when the libebook's bug is fixed.
+		remains = (t for t in tels if t.get_value() not in counted)
+		for attr in remains:
+			type_params = attr.get_param('TYPE')
+			if 'CELL' in type_params:
+				name = EBook.Contact.pretty_name(EBook.ContactField.PHONE_MOBILE)
+			else:
+				name = EBook.Contact.pretty_name(EBook.ContactField.PHONE_OTHER)
+			value = attr.get_value()
+			row = self.phonenumber_to_ui(name, value)
+			grid.pack_start(row, False, True, 0)
+
 		return grid
+
+
+	def phonenumber_to_ui(self, name, value):
+		name = Gtk.Label(name)
+		value = Gtk.Label(value)
+		value.set_selectable(True)
+		value.set_justify(Gtk.Justification.RIGHT)
+		value.set_alignment(1, 0.5)
+		row = Gtk.HBox()
+		row.pack_start(name, False, True, 0)
+		row.pack_start(value, True, True, 0)
+		return row
 
 
 class RemovePromptDialog(Gtk.Dialog):

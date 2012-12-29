@@ -35,7 +35,6 @@ def get_first_phone(contact):
 
 def contacts_to_edataserver(contacts, callback):
 	for c in contacts:
-		print(c.get_property('mobile-phone'))
 		# Check if phone number is duplicated with an existing contact.
 		# We call this case conflict.
 		conflicts = get_conflict_contacts(c)
@@ -68,7 +67,6 @@ def try_solve_conflicts(newcontact, conflicts):
 	# If there are more, we solve between these contacts first, then solve
 	# the last remain with the new.
 	existing = conflicts[0]
-	print('Existing', existing.get_property('mobile-phone'))
 	for other_existing in conflicts[1:]:
 		abook.remove_contact_sync(other_existing, None)
 		merge_contacts(existing, other_existing)

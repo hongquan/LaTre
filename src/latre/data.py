@@ -28,6 +28,9 @@ def uifile(name):
 		raise IOError('UI file {} does not exist.'.format(fpath))
 	return fpath
 
+def iconfile():
+	return os.path.join(_data_dir, config.package + '.svg')
+
 def contacts_from_files(files):
 	contacts = []
 	with concurrent.futures.ThreadPoolExecutor(max_workers=5) as e:
