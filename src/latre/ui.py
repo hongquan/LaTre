@@ -106,6 +106,10 @@ class LaTreUI(UIFactory):
 		number = model.get_first_phone(contact)
 		uid = contact.get_property('id')
 		photo = self.get_contact_photo(contact, SIZE_PHOTO_LIST)
+		if photo is None:
+			icontheme = Gtk.IconTheme.get_default()
+			photo = icontheme.load_icon('avatar-default', SIZE_PHOTO_LIST,
+			                            Gtk.IconLookupFlags.USE_BUILTIN)
 		self.contactlist.append((name, number, photo, uid))
 
 
@@ -140,6 +144,9 @@ class LaTreUI(UIFactory):
 		photo = self.get_contact_photo(contact, size)
 		if photo:
 			self.contactphoto.set_from_pixbuf(photo)
+		else:
+			(self.contactphoto.get_icon_name() == ('avatar-default', size)) \
+			or self.contactphoto.set_from_icon_name('avatar-default', size)
 		# Get the children of contactdetail box
 		children = self.contactdetail.get_children()
 		# The 2nd child is for showing phone numbers.
