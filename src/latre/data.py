@@ -11,8 +11,8 @@ _data_dir = config.data_dir
 def run_from_source():
 	''' If running from source, return source folder path,
 	otherwise, return False '''
-	cdir = os.path.dirname(__file__)
-	pdir = os.path.normpath(os.path.join(cdir, '..'))
+	cdir = os.path.dirname(__file__)   # Current dir of the script
+	pdir = os.path.normpath(os.path.join(cdir, '..'))  # Parent dir
 	path = os.path.split(pdir)
 	return path[0] if path[1] == 'src' else False
 
