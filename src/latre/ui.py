@@ -163,7 +163,7 @@ class LaTreUI(UIFactory):
 
 
 	def show_phonenumbers(self, contact):
-		grid = Gtk.VBox(False, 5)
+		grid = Gtk.Box.new(Gtk.Orientation.VERTICAL, 5)
 		# There is a bug in libebook that using Contact.get_poperty() does not
 		# retrieve all phone numbers. So we will apply a trick here.
 		all_numbers = set()    # All numbers found in vcard.
@@ -205,7 +205,7 @@ class LaTreUI(UIFactory):
 		value.set_selectable(True)
 		value.set_justify(Gtk.Justification.RIGHT)
 		value.set_alignment(1, 0.5)
-		row = Gtk.HBox()
+		row = Gtk.Box(Gtk.Orientation.HORIZONTAL)
 		row.pack_start(name, False, True, 0)
 		row.pack_start(value, True, True, 0)
 		return row

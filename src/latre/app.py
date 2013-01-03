@@ -65,10 +65,10 @@ class LaTreApp(Gtk.Application):
 	def on_mainwindow_realize(self, widget):
 		Gtk.main_iteration()
 		self.populate_contact_list()
-		self.ui.mainwindow.resize(500, 400)
+		self.ui.mainwindow.resize(550, 400)
 		# Set pane position
 		panewidth = self.ui.mainpane.get_allocated_width()
-		position = int(panewidth*2/5)
+		position = int(panewidth/3)
 		self.ui.mainpane.set_position(position)
 
 
