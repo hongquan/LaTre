@@ -158,7 +158,7 @@
                         <property name="no_show_all">True</property>
                         <property name="border_width">8</property>
                         <property name="orientation">vertical</property>
-                        <property name="spacing">8</property>
+                        <property name="spacing">10</property>
                         <child>
                           <object class="GtkBox" id="box3">
                             <property name="visible">True</property>
@@ -183,6 +183,9 @@
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">label</property>
                                 <property name="selectable">True</property>
+                                <attributes>
+                                  <attribute name="font-desc" value="&lt;Enter Value&gt; 16"/>
+                                </attributes>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
