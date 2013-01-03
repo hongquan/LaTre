@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <!-- interface-requires gtk+ 3.0 -->
-  <object class="GtkListStore" id="conflictlist">
-    <columns>
-      <!-- column-name name -->
-      <column type="gchararray"/>
-    </columns>
-  </object>
   <object class="GtkListStore" id="contactlist">
     <columns>
       <!-- column-name name -->
@@ -101,89 +95,47 @@
             <property name="can_focus">True</property>
             <property name="border_width">3</property>
             <child>
-              <object class="GtkVPaned" id="treepane">
+              <object class="GtkScrolledWindow" id="scrolledwindow1">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <child>
-                  <object class="GtkScrolledWindow" id="scrolledwindow1">
+                  <object class="GtkTreeView" id="contact_tree">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="model">contactlist</property>
+                    <property name="headers_visible">False</property>
+                    <property name="headers_clickable">False</property>
+                    <property name="search_column">0</property>
+                    <signal name="cursor-changed" handler="on_contact_tree_cursor_changed" swapped="no"/>
+                    <signal name="unselect-all" handler="on_contact_tree_unselect_all" swapped="no"/>
+                    <signal name="key-press-event" handler="on_contact_tree_key_press_event" swapped="no"/>
+                    <signal name="size-allocate" handler="on_contact_tree_size_allocate" swapped="no"/>
+                    <child internal-child="selection">
+                      <object class="GtkTreeSelection" id="treeview-selection1"/>
+                    </child>
                     <child>
-                      <object class="GtkTreeView" id="contact_tree">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="model">contactlist</property>
-                        <property name="headers_visible">False</property>
-                        <property name="headers_clickable">False</property>
-                        <property name="search_column">0</property>
-                        <signal name="cursor-changed" handler="on_contact_tree_cursor_changed" swapped="no"/>
-                        <signal name="unselect-all" handler="on_contact_tree_unselect_all" swapped="no"/>
-                        <signal name="key-press-event" handler="on_contact_tree_key_press_event" swapped="no"/>
-                        <signal name="size-allocate" handler="on_contact_tree_size_allocate" swapped="no"/>
-                        <child internal-child="selection">
-                          <object class="GtkTreeSelection" id="contact_selection">
-                            <signal name="changed" handler="on_contact_selection_changed" swapped="no"/>
-                          </object>
-                        </child>
+                      <object class="GtkTreeViewColumn" id="photo">
+                        <property name="title" translatable="yes">Photo</property>
                         <child>
-                          <object class="GtkTreeViewColumn" id="photo">
-                            <property name="title" translatable="yes">Photo</property>
-                            <child>
-                              <object class="GtkCellRendererPixbuf" id="cell_photo"/>
-                              <attributes>
-                                <attribute name="pixbuf">2</attribute>
-                              </attributes>
-                            </child>
-                          </object>
+                          <object class="GtkCellRendererPixbuf" id="cell_photo"/>
+                          <attributes>
+                            <attribute name="pixbuf">2</attribute>
+                          </attributes>
                         </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="name">
+                        <property name="title" translatable="yes">Name</property>
                         <child>
-                          <object class="GtkTreeViewColumn" id="name">
-                            <property name="title" translatable="yes">Name</property>
-                            <child>
-                              <object class="GtkCellRendererText" id="cell_name"/>
-                              <attributes>
-                                <attribute name="text">0</attribute>
-                              </attributes>
-                            </child>
-                          </object>
+                          <object class="GtkCellRendererText" id="cell_name"/>
+                          <attributes>
+                            <attribute name="text">0</attribute>
+                          </attributes>
                         </child>
                       </object>
                     </child>
                   </object>
-                  <packing>
-                    <property name="resize">True</property>
-                    <property name="shrink">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkScrolledWindow" id="scrolledwindow2">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <child>
-                      <object class="GtkTreeView" id="conflict_tree">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="model">conflictlist</property>
-                        <property name="headers_visible">False</property>
-                        <property name="headers_clickable">False</property>
-                        <child internal-child="selection">
-                          <object class="GtkTreeSelection" id="treeview-selection2"/>
-                        </child>
-                        <child>
-                          <object class="GtkTreeViewColumn" id="treeviewcolumn1">
-                            <property name="title" translatable="yes">column</property>
-                            <child>
-                              <object class="GtkCellRendererText" id="cellrenderertext1"/>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="resize">False</property>
-                    <property name="shrink">True</property>
-                  </packing>
                 </child>
               </object>
               <packing>
