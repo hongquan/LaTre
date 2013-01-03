@@ -165,7 +165,7 @@ class LaTreApp(Gtk.Application):
 			return
 		r, con = client.get_contact_sync(uid, None)
 		if r:
-			self.add_contact_to_treeview(con)
+			self.ui.add_contact_to_treeview(con)
 
 
 if __name__ == '__main__':
