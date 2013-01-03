@@ -1,0 +1,16 @@
+Source: latre
+Maintainer: Nguyễn Hồng Quân <ng.hong.quan@gmail.com>
+Section: python
+Priority: optional
+Build-Depends: debhelper (>= 7), python-support (>= 0.8.4)
+Standards-Version: 3.8.4
+XS-Python-Version: current
+X-Python3-Version: >= 3.1
+
+Package: latre
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}
+XB-Python-Version: ${python:Versions}
+Provides: ${python:Provides}
+Description: A phonebook app, allow to import contacts from vCard files, delete contact. This app uses the same storage as GNOME Contacts, so the contacts can seen in both application.
+
