@@ -112,11 +112,13 @@ class LaTreApp(Gtk.Application):
 
 	def populate_contact_list(self):
 		self.ui.import_btn.set_sensitive(False)
-		r, values = abook.get_contacts_sync('#t', None)
-		if r:
-			[self.ui.add_contact_to_treeview(c) for c in values]
-		self.ui.import_btn.set_sensitive(True)
+		abook.get_contacts('#t', None, self.load_contacts_done, None)
 
+	def load_contacts_done(self, source, res, user_data):
+		r, contacts = source.get_contacts_finish(res)
+		if r:
+			[self.ui.add_contact_to_treeview(c) for c in contacts]
+		self.ui.import_btn.set_sensitive(True)
 
 	# Auto scroll treeview to end
 	def on_contact_tree_size_allocate(self, widget, event, data=None):
