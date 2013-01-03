@@ -19,7 +19,7 @@ if len(sys.argv) > 1:
 
 setup(name=package,
 	  version='1.0',
-	  description='Phonebook',
+	  description='A phonebook app, allow to import contacts from vCard files, delete contact. This app uses the same storage as GNOME Contacts, so the contacts can seen in both application.',
 	  author='Nguyễn Hồng Quân',
 	  author_email='ng.hong.quan@gmail.com',
 	  url='http://heomoi.wordpress.com',

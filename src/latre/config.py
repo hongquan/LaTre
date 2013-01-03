@@ -5,7 +5,7 @@ import os.path
 appname = 'Lá Tre'
 version = '0.1'
 package = 'latre'
-parentloc = '/usr/local'
+parentloc = '/usr'
 userloc = os.path.expanduser('~')
 data_dir = os.path.join(parentloc, 'share', package)
 userdata_dir = os.path.join(userloc, '.local', 'share', package)
