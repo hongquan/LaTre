@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Lá Tre
+Icon=latre
+Exec=latre
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=GNOME;GTK;Utility;
+X-Ubuntu-Gettext-Domain=latre

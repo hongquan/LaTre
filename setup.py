@@ -6,8 +6,12 @@ from distutils.core import setup
 sys.path.insert(1, 'src')
 from latre.config import version, package
 
+# Clean pycache
+cachefolder = os.path.join('src', package, '__pycache__')
+shutil.rmtree(cachefolder)
+
 # Copy the script to other place, rename it for building
-src_bin = 'src/latre-bin'
+src_bin = os.path.join('src', 'latre-bin')
 bin_folder = 'bin'
 bin_file = os.path.join(bin_folder, package)
 
@@ -27,7 +31,9 @@ setup(name=package,
 	  package_dir = {'': 'src'},
 	  packages=['latre'],
 	  scripts=[bin_file],
-	  data_files=[('share/latre', ['data/MainWindow.ui', 'data/latre.svg'])]
+	  data_files=[('share/latre', ['data/MainWindow.ui']),
+	              ('share/icons/hicolor/scalable/apps', ['data/latre.svg']),
+	              ('share/applications', ['data/latre.desktop'])]
 )
 
 # Remove the copied file
