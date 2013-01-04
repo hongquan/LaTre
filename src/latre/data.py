@@ -4,7 +4,6 @@ import shutil
 import concurrent.futures
 from gi.repository import EBook
 from . import config
-from . import vcard
 
 _data_dir = config.data_dir
 
