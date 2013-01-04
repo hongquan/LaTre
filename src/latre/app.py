@@ -39,6 +39,7 @@ class LaTreApp(Gtk.Application):
 
 	def set_ui(self):
 		self.ui = LaTreUI()
+		# Bind handlers to signals. The handler'name is suggested by Glade.
 		self.ui.connect_handlers([self.on_quit_btn_clicked, self.on_import_btn_clicked,
 		                          self.on_clear_btn_clicked,
 		                          self.on_contact_tree_size_allocate,
@@ -58,8 +59,6 @@ class LaTreApp(Gtk.Application):
 			window.set_icon_name(config.package)
 		self.add_window(window)
 		window.show_all()
-		#methods = inspect.getmembers(self, predicate=inspect.ismethod)
-		#callbacks = [m for n, m in methods if n.startswith('on_')]
 
 
 	def on_mainwindow_realize(self, widget):
