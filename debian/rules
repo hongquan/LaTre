@@ -18,3 +18,4 @@ unexport LDFLAGS
 override_dh_auto_install:
 	python3 setup.py install --root=debian/latre --install-layout=deb
 override_dh_auto_build:
+override_dh_auto_clean:
