@@ -3,7 +3,8 @@
 import sys, os, shutil
 from distutils.core import setup
 
-package = 'latre'
+sys.path.insert(1, 'src')
+from latre.config import version, package
 
 # Copy the script to other place, rename it for building
 src_bin = 'src/latre-bin'
@@ -18,7 +19,7 @@ if len(sys.argv) > 1:
 
 
 setup(name=package,
-	  version='1.0',
+	  version=version,
 	  description='A phonebook app, allow to import contacts from vCard files, delete contact. This app uses the same storage as GNOME Contacts, so the contacts can seen in both application.',
 	  author='Nguyễn Hồng Quân',
 	  author_email='ng.hong.quan@gmail.com',
