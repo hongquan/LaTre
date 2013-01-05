@@ -1,4 +1,16 @@
-latre (0.1) unstable; urgency=low
+latre (0.2-build1) quantal; urgency=low
+
+  * Fix a crash when deleting contact.
+
+ -- Nguyễn Hồng Quân <ng.hong.quan@gmail.com>  Sat, 05 Jan 2013 09:00:00 +0700
+
+latre (0.1-build1) quantal; urgency=low
+
+  * Change build script.
+
+ -- Nguyễn Hồng Quân <ng.hong.quan@gmail.com>  Sat, 05 Jan 2013 09:00:00 +0700
+
+latre (0.1) quantal; urgency=low
 
   * source package automatically created by stdeb 0.6.0
 

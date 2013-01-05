@@ -111,7 +111,7 @@
                     <signal name="key-press-event" handler="on_contact_tree_key_press_event" swapped="no"/>
                     <signal name="size-allocate" handler="on_contact_tree_size_allocate" swapped="no"/>
                     <child internal-child="selection">
-                      <object class="GtkTreeSelection" id="treeview-selection1"/>
+                      <object class="GtkTreeSelection" id="contact_selection"/>
                     </child>
                     <child>
                       <object class="GtkTreeViewColumn" id="photo">

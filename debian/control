@@ -1,17 +1,15 @@
 Source: latre
 Maintainer: Nguyễn Hồng Quân <ng.hong.quan@gmail.com>
-Section: python
+Section: gnome
 Priority: optional
-Build-Depends: debhelper (>= 7), python-support (>= 0.8.4)
+Build-Depends: debhelper (>= 8.0.0), python3
 Standards-Version: 3.8.4
 XS-Python-Version: current
 X-Python3-Version: >= 3.1
 
 Package: latre
 Architecture: all
-Depends: gir1.2-gtk-3.0, gir1.2-ebook-1.2, gir1.2-edataserver-1.2, ${misc:Depends}, ${python:Depends}
-XB-Python-Version: ${python:Versions}
-Provides: ${python:Provides}
+Depends: gir1.2-gtk-3.0, gir1.2-ebook-1.2, gir1.2-edataserver-1.2, ${misc:Depends}, python3-gi
 Description: A phonebook app
  Lá Tre allows to import contacts from vCard files, delete contacts, which GNOME Contacts is missing at the time Lá Tre is born.
  This app uses the same storage as GNOME Contacts, so the contacts can be seen in both applications.

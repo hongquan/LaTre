@@ -217,6 +217,11 @@ class RemovePromptDialog(Gtk.Dialog):
 				Gtk.DialogFlags.MODAL)
 		self.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
 		                 Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT)
-		label = Gtk.Label(_("Are you really want to delete ") + name + "?")
+		nm = '\n<b>{}</b>'.format(name)
+		label = Gtk.Label()
+		label.set_markup(_("Are you really want to delete") + nm + "?")
+		label.set_margin_left(5)
+		label.set_margin_right(5)
+		label.set_justify(Gtk.Justification.CENTER)
 		self.vbox.pack_start(label, True, True, 10)
 		self.vbox.show_all()
