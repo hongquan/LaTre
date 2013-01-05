@@ -1,6 +1,7 @@
 import os
 import os.path
 import shutil
+import re
 import concurrent.futures
 from gi.repository import EBook
 from . import config
@@ -31,22 +32,25 @@ def iconfile():
 	return os.path.join(_data_dir, config.package + '.svg')
 
 def contacts_from_files(files):
-	contacts = []
+	vcards = set()
 	with concurrent.futures.ThreadPoolExecutor(max_workers=5) as e:
-		fts = [e.submit(contact_from_file, f) for f in files]
+		fts = [e.submit(vcards_from_file, f) for f in files]
 	for f in concurrent.futures.as_completed(fts):
 		if f.exception() is None:
-			con = f.result()
-			# Avoid duplicate
-			if not contact_already_in_list(con, contacts):
-				contacts.append(con)
+			vcs = f.result()
+			vcards = vcards.union(vcs)
+	contacts = [EBook.Contact.new_from_vcard(v) for v in vcards]
 	return contacts
 
-def contact_from_file(fil):
+def vcards_from_file(fil):
 	with open(fil) as fl:
 		content = fl.read()
-	# Assume that vcard file contains only 1 contact
-	return EBook.Contact.new_from_vcard(content)
+	# There may be multiple vcards in file
+	# Use set to avoid duplicated
+	vcards = set()
+	for m in re.finditer('BEGIN:VCARD.+?END:VCARD', content, re.DOTALL):
+		vcards.add(m.group(0))
+	return vcards
 
 def contacts_identical(contact1, contact2):
 	cformat = getattr(EBook.VCardFormat, '30')
