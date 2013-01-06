@@ -109,6 +109,7 @@
                     <signal name="cursor-changed" handler="on_contact_tree_cursor_changed" swapped="no"/>
                     <signal name="unselect-all" handler="on_contact_tree_unselect_all" swapped="no"/>
                     <signal name="key-press-event" handler="on_contact_tree_key_press_event" swapped="no"/>
+                    <signal name="drag-data-received" handler="on_contact_tree_drag_data_received" swapped="no"/>
                     <signal name="size-allocate" handler="on_contact_tree_size_allocate" swapped="no"/>
                     <child internal-child="selection">
                       <object class="GtkTreeSelection" id="contact_selection"/>

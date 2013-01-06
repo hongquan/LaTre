@@ -39,11 +39,16 @@ class LaTreApp(Gtk.Application):
 
 	def set_ui(self):
 		self.ui = LaTreUI()
+		# Drag 'n' drop
+		self.ui.contact_tree.enable_model_drag_dest([],
+		                                   Gdk.DragAction.COPY)
+		self.ui.contact_tree.drag_dest_add_uri_targets()
 		# Bind handlers to signals. The handler'name is suggested by Glade.
 		self.ui.connect_handlers([self.on_quit_btn_clicked, self.on_import_btn_clicked,
 		                          self.on_clear_btn_clicked,
 		                          self.on_contact_tree_size_allocate,
 		                          self.on_contact_tree_cursor_changed,
+		                          self.on_contact_tree_drag_data_received,
 		                          self.on_del_btn_clicked,
 		                          self.on_mainwindow_realize])
 		self.ui.filechooser = None
@@ -133,6 +138,14 @@ class LaTreApp(Gtk.Application):
 		if itr:
 			uid = model.get_value(itr, COL_UID)
 			self.ui.show_contact(uid)
+
+
+	# Drag n Drop
+	def on_contact_tree_drag_data_received(self, widget, drag_context, x, y, sel_data, info, time):
+		uris = sel_data.get_uris()
+		Gtk.main_iteration()
+		contacts = data.contacts_from_files(uris)
+		model.contacts_to_edataserver(contacts, self.contact_import_done)
 
 
 	def on_clear_btn_clicked(self, widget):

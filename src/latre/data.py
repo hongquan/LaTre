@@ -2,6 +2,7 @@ import os
 import os.path
 import shutil
 import re
+import urllib.parse
 import concurrent.futures
 from gi.repository import EBook
 from . import config
@@ -43,6 +44,11 @@ def contacts_from_files(files):
 	return contacts
 
 def vcards_from_file(fil):
+	if fil.startswith('file://'): # fil is a URI
+		fil = fil[7:]             # Strip "file://" part
+		fil = urllib.parse.unquote(fil)
+	elif '://' in fil:            # Other URI schemes (http, ftp...) are rejected
+		return
 	with open(fil) as fl:
 		content = fl.read()
 	# There may be multiple vcards in file
