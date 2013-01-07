@@ -2,7 +2,8 @@
 
 import os
 import concurrent.futures
-from gi.repository import Gtk, Gio, Gdk
+import gettext
+from gi.repository import GLib, Gtk, Gio, Gdk
 
 from gi.repository import EDataServer
 from gi.repository import EBook
@@ -20,6 +21,9 @@ TEL_MISSING         = 1
 NAME_MISSING        = 2
 INTEGRITY_ERROR     = 3
 CROSS_OWN_NUMBER    = 4  # Different persons own same number
+AUTOSCROLL_THRESHOLD = 2
+
+_ = gettext.gettext
 
 class LaTreApp(Gtk.Application):
 	# Ref: http://www.micahcarrick.com/tutorials/autotools-tutorial-python-gtk/getting-started.html
@@ -28,6 +32,7 @@ class LaTreApp(Gtk.Application):
 		super(LaTreApp, self).__init__(application_id='apps.vn.sodien',
 		                               flags=Gio.ApplicationFlags.FLAGS_NONE)
 		self.set_ui()
+		self._autoscroll_allow = 0
 
 		self.connect('activate', self.on_activated)
 
@@ -46,7 +51,6 @@ class LaTreApp(Gtk.Application):
 		# Bind handlers to signals. The handler'name is suggested by Glade.
 		self.ui.connect_handlers([self.on_quit_btn_clicked, self.on_import_btn_clicked,
 		                          self.on_clear_btn_clicked,
-		                          self.on_contact_tree_size_allocate,
 		                          self.on_contact_tree_cursor_changed,
 		                          self.on_contact_tree_drag_data_received,
 		                          self.on_del_btn_clicked,
@@ -101,43 +105,57 @@ class LaTreApp(Gtk.Application):
 		selection = self.ui.contact_selection
 		if selection.count_selected_rows() == 0:
 			return
-		model, itr = selection.get_selected()
-		name = model.get_value(itr, COL_NAME)
-		dialog = RemovePromptDialog(name)
+		model, paths = selection.get_selected_rows()
+		names = [model[p][COL_NAME] for p in paths]
+		dialog = RemovePromptDialog(', '.join(names))
 		response = dialog.run()
 		dialog.destroy()
 		if response != Gtk.ResponseType.ACCEPT:
 			return
-		uid = model.get_value(itr, COL_UID)
-		r = abook.remove_contact_by_uid_sync(uid, None)
+		uids = [model[p][COL_UID] for p in paths]
+		r = abook.remove_contacts_sync(uids, None)
 		if r:
-			model.remove(itr)
+			iters = [model.get_iter(p) for p in paths]
+			[model.remove(i) for i in iters]
 
 
 	def populate_contact_list(self):
 		self.ui.import_btn.set_sensitive(False)
 		abook.get_contacts('#t', None, self.load_contacts_done, None)
 
+
 	def load_contacts_done(self, source, res, user_data):
 		r, contacts = source.get_contacts_finish(res)
 		if r:
 			[self.ui.add_contact_to_treeview(c) for c in contacts]
 		self.ui.import_btn.set_sensitive(True)
+		self.ui.contact_tree.connect('size-allocate', self.on_contact_tree_size_allocate)
+		# For a short time later, the 'size-allocate' will be emitted, but
+		# we don't want the autoscroll is active right
+
 
 	# Auto scroll treeview to end
-	def on_contact_tree_size_allocate(self, widget, event, data=None):
+	def on_contact_tree_size_allocate(self, widget, rectangle, user_data=None):
+		# There is a problem that the fist click on tree row will
+		# trigger size-allocate, make the tree view scroll to end undesiredly.
+		# So we'll ignore the first trigger of this signal
+		if self._autoscroll_allow < AUTOSCROLL_THRESHOLD:
+			# AUTOSCROLL_THRESHOLD = 2, count the comment in load_contacts_done()
+			self._autoscroll_allow += 1
+			return
 		adj = widget.get_vadjustment()
-		adj.set_value(adj.get_upper() - adj.get_page_size())
+		diff = adj.get_upper() - adj.get_page_size()
+		if adj.get_value() != diff:
+			adj.set_value(diff)
 
 
 	def on_contact_tree_cursor_changed(self, treeview):
 		selection = treeview.get_selection()
-		if not selection:
+		if not selection or selection.count_selected_rows() != 1:
 			return
-		model, itr = selection.get_selected()
-		if itr:
-			uid = model.get_value(itr, COL_UID)
-			self.ui.show_contact(uid)
+		model, (path,) = selection.get_selected_rows()
+		uid = model[path][COL_UID]
+		self.ui.show_contact(uid)
 
 
 	# Drag n Drop
@@ -149,6 +167,11 @@ class LaTreApp(Gtk.Application):
 
 
 	def on_clear_btn_clicked(self, widget):
+		dialog = RemovePromptDialog(_('all contacts'))
+		response = dialog.run()
+		dialog.destroy()
+		if response != Gtk.ResponseType.ACCEPT:
+			return
 		r, uids = abook.get_contacts_uids_sync('#t', None)
 		if not r:
 			return

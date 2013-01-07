@@ -102,7 +102,10 @@ class LaTreUI(UIFactory):
 		self.contactdetail.hide()
 
 	def add_contact_to_treeview(self, contact):
-		name = contact.get_property('name').to_string()
+		try:
+			name = contact.get_property('name').to_string()
+		except AttributeError:
+			name = model.get_first_phone(contact) or contact.get_property('email-1')
 		number = model.get_first_phone(contact)
 		uid = contact.get_property('id')
 		photo = self.get_contact_photo(contact, SIZE_PHOTO_LIST)
@@ -137,7 +140,10 @@ class LaTreUI(UIFactory):
 			return
 		#print(contact.to_string(getattr(EBook.VCardFormat, '30')))
 		# Name
-		name = contact.get_property('name').to_string()
+		try:
+			name = contact.get_property('name').to_string()
+		except AttributeError:
+			name = model.get_first_phone(contact) or contact.get_property('email-1')
 		self.contactname.set_text(name)
 		# Photo
 		size = self.contactphoto.get_pixel_size()
@@ -219,6 +225,7 @@ class RemovePromptDialog(Gtk.Dialog):
 		                 Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT)
 		nm = '\n<b>{}</b>'.format(name)
 		label = Gtk.Label()
+		label.set_line_wrap(True)
 		label.set_markup(_("Are you really want to delete") + nm + "?")
 		label.set_margin_left(5)
 		label.set_margin_right(5)
