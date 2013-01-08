@@ -101,6 +101,10 @@ def reduce_to_uniques(contacts):
 	for c in contacts:
 		ats = c.get_attributes(EBook.ContactField.TEL)
 		c.numbers = frozenset(a.get_value() for a in ats)
+
+	if len(contacts) == 1:
+		return contacts
+	# More than 1
 	uniques = []
 	while len(contacts) > 1:
 		reduced = []
@@ -112,6 +116,8 @@ def reduce_to_uniques(contacts):
 				reduced.append(c)
 		contacts = reduced
 		uniques.append(picked)
+	# Add the last remain
+	uniques.append(contacts[0])
 	return uniques
 
 
