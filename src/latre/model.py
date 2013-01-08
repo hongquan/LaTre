@@ -81,7 +81,7 @@ def contacts_to_edataserver_by_group(contacts, callback):
 	conflict_numbers = set()
 	for c in conflicts:
 		ats = c.get_attributes(EBook.ContactField.TEL)
-		conflict_numbers.union(a.get_value() for a in ats)
+		conflict_numbers = conflict_numbers.union(a.get_value() for a in ats)
 	for c in contacts:
 		if not (c.numbers & conflict_numbers):
 			abook.add_contacts((c,), None, callback, None)
