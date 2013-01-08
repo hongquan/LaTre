@@ -2,6 +2,7 @@
 
 import difflib
 import re
+import datetime
 from . import config
 
 from gi.repository import EDataServer
@@ -33,11 +34,27 @@ def get_first_phone(contact):
 		if prop:
 			return prop
 
-def contacts_to_edataserver(contacts, callback):
+
+def get_contacts_by_uids(uids):
+	# Build query
+	queries = []
+	for i in uids:
+		q = EBook.BookQuery.field_test(EBook.ContactField.UID, EBook.BookQueryTest.IS, i)
+		queries.append(q.to_string())
+	query = "(or {})".format(' '.join(queries))
+	r, cons = abook.get_contacts_sync(query, None)
+	if r:
+		return cons
+	return []
+
+
+def contacts_to_edataserver_one_by_one(contacts, callback):
+	''' Add contacts to EDataServer, one by one.
+	The callback is for the case of single contact adding '''
 	for c in contacts:
 		# Check if phone number is duplicated with an existing contact.
 		# We call this case conflict.
-		conflicts = get_conflict_contacts(c)
+		conflicts = get_conflicts_of_contact(c)
 		if conflicts == []:
 			# No conflict
 			abook.add_contact(c, None, callback, None)
@@ -45,25 +62,99 @@ def contacts_to_edataserver(contacts, callback):
 			try_solve_conflicts(c, conflicts)
 
 
-def get_conflict_contacts(contact):
+def contacts_to_edataserver_by_group(contacts, callback):
+	''' Add a group of contacts to EDataServer.
+	Note that the callback here is for the case of adding
+	multiple contacts. '''
+	contacts = reduce_to_uniques(contacts)
+	# First, we test with all numbers here for any one existing already in EDataServer
+	numbers = []
+	for c in contacts:
+		numbers.extend(c.numbers)
+	query = make_query_test_any_number_exist(numbers)
+	r, conflicts = abook.get_contacts_sync(query, None)
+	if not conflicts:
+		# No conflict, add in batch
+		abook.add_contacts(contacts, None, callback, None)
+		return
+	# else: One of contacts in group has conflict with database
+	conflict_numbers = set()
+	for c in conflicts:
+		ats = c.get_attributes(EBook.ContactField.TEL)
+		conflict_numbers.union(a.get_value() for a in ats)
+	for c in contacts:
+		if not (c.numbers & conflict_numbers):
+			abook.add_contacts((c,), None, callback, None)
+			continue
+		# else
+		narrow_conflicts = get_conflicts_of_contact(c)
+		if not narrow_conflicts:
+			# No conflict
+			abook.add_contacts((c,), None, callback, None)
+		else:
+			try_solve_conflicts(c, narrow_conflicts)
+
+
+def reduce_to_uniques(contacts):
+	''' Combines contacts which share 1 or more phone numbers.
+	Return list of separated contacts '''
+	for c in contacts:
+		ats = c.get_attributes(EBook.ContactField.TEL)
+		c.numbers = frozenset(a.get_value() for a in ats)
+	uniques = []
+	while len(contacts) > 1:
+		reduced = []
+		picked = contacts[0]
+		for c in contacts[1:]:
+			if len(picked.numbers & c.numbers):
+				picked = meld_to_newer(picked, c)
+			else:
+				reduced.append(c)
+		contacts = reduced
+		uniques.append(picked)
+	return uniques
+
+
+def make_query_test_any_number_exist(numbers):
+	queries = []
+	for n in numbers:
+		q = EBook.BookQuery.vcard_field_test('TEL', EBook.BookQueryTest.CONTAINS, n)
+		queries.append(q.to_string())
+	return "(or {})".format(' '.join(queries))
+
+
+def get_conflicts_of_contact(contact):
 	''' Search among existing contacts for the one having
 	1 same phone number as the given contact. '''
 	# Build query
-	queries = []
-	for a in contact.get_attributes(EBook.ContactField.TEL):
-		value = a.get_value()
-		q = EBook.BookQuery.vcard_field_test('TEL',
-		                                     EBook.BookQueryTest.CONTAINS,
-		                                     value)
-		queries.append(q.to_string())
-	query = "(or {})".format(' '.join(queries))
+	ats = contact.get_attributes(EBook.ContactField.TEL)
+	numbers = frozenset(a.get_value() for a in ats)
+	query = make_query_test_any_number_exist(numbers)
 	# Apply query
 	r, conflicts = abook.get_contacts_sync(query, None)
 	return conflicts
 
+def get_conflict_contacts_by_group(contacts):
+	pass
+
+
+def meld_to_newer(c1, c2):
+	rev1 = c1.get_property('Rev')
+	d1 = datetime.datetime.strptime(rev1, '%Y-%m-%dT%H:%M:%SZ')
+	rev2 = c2.get_property('Rev')
+	d2 = datetime.datetime.strptime(rev2, '%Y-%m-%dT%H:%M:%SZ')
+	if d1 >= d2:
+		c = mix_phones(c1, c2)
+	else:
+		c = mix_phones(c2, c1)
+	# Update numbers set
+	ats = c.get_attributes(EBook.ContactField.TEL)
+	c.numbers = frozenset(a.get_value() for a in ats)
+	return c
+
 
 def try_solve_conflicts(newcontact, conflicts):
-	# If there is only conflict contact, just solve it with the new.
+	# If there is only conflict contact, just solve it with the new one.
 	# If there are more, we solve between these contacts first, then solve
 	# the last remain with the new.
 	existing = conflicts[0]

@@ -95,7 +95,7 @@ class LaTreApp(Gtk.Application):
 		try:
 			Gtk.main_iteration()
 			contacts = data.contacts_from_files(files)
-			model.contacts_to_edataserver(contacts, self.contact_import_done)
+			model.contacts_to_edataserver_by_group(contacts, self.contacts_import_done)
 
 		except UnboundLocalError: # files not defined
 			return
@@ -163,7 +163,7 @@ class LaTreApp(Gtk.Application):
 		uris = sel_data.get_uris()
 		Gtk.main_iteration()
 		contacts = data.contacts_from_files(uris)
-		model.contacts_to_edataserver(contacts, self.contact_import_done)
+		model.contacts_to_edataserver_by_group(contacts, self.contacts_import_done)
 
 
 	def on_clear_btn_clicked(self, widget):
@@ -185,17 +185,17 @@ class LaTreApp(Gtk.Application):
 		super(LaTreApp, self).quit()
 
 
+	# Callback for the case of adding multiple contacts
 	def contacts_import_done(self, client, res, user_data):
 		success, uids = client.add_contacts_finish(res)
 		if not success:
 			return
-		for uid in uids:
-			r, con = client.get_contact_sync(uid, None)
-			if not r:
-				continue
-			self.add_contact_to_treeview(con)
+		cons = model.get_contacts_by_uids(uids)
+		for c in cons:
+			self.ui.add_contact_to_treeview(c)
 
 
+	# Callback for the case of adding single contact
 	def contact_import_done(self, client, res, user_data):
 		success, uid = client.add_contact_finish(res)
 		if not success:
