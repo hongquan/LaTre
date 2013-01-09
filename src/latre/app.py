@@ -129,7 +129,7 @@ class LaTreApp(Gtk.Application):
 		if r:
 			[self.ui.add_contact_to_treeview(c) for c in contacts]
 		self.ui.import_btn.set_sensitive(True)
-		self.ui.contact_tree.connect('size-allocate', self.on_contact_tree_size_allocate)
+		#self.ui.contact_tree.connect('size-allocate', self.on_contact_tree_size_allocate)
 		# For a short time later, the 'size-allocate' will be emitted, but
 		# we don't want the autoscroll is active right
 
