@@ -143,6 +143,10 @@ class LaTreApp(Gtk.Application):
 			# AUTOSCROLL_THRESHOLD = 2, count the comment in load_contacts_done()
 			self._autoscroll_allow += 1
 			return
+		selection = widget.get_selection()
+		# Do not autoscroll when there is row selected
+		if not selection.count_selected_rows():
+			return
 		adj = widget.get_vadjustment()
 		diff = adj.get_upper() - adj.get_page_size()
 		if adj.get_value() != diff:
@@ -193,6 +197,7 @@ class LaTreApp(Gtk.Application):
 		cons = model.get_contacts_by_uids(uids)
 		for c in cons:
 			self.ui.add_contact_to_treeview(c)
+		self._autoscroll_allow = 0
 
 
 	# Callback for the case of adding single contact
