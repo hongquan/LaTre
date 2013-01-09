@@ -78,16 +78,8 @@ def contacts_to_edataserver_by_group(contacts, callback):
 		abook.add_contacts(contacts, None, callback, None)
 		return
 	# else: One of contacts in group has conflict with database
-	conflict_numbers = set()
-	for c in conflicts:
-		ats = c.get_attributes(EBook.ContactField.TEL)
-		conflict_numbers = conflict_numbers.union(a.get_value() for a in ats)
 	for c in contacts:
-		if not (c.numbers & conflict_numbers):
-			abook.add_contacts((c,), None, callback, None)
-			continue
-		# else
-		narrow_conflicts = get_conflicts_of_contact(c)
+		narrow_conflicts = narrow_conflicts_around_contact(conflicts, c)
 		if not narrow_conflicts:
 			# No conflict
 			abook.add_contacts((c,), None, callback, None)
@@ -140,8 +132,15 @@ def get_conflicts_of_contact(contact):
 	r, conflicts = abook.get_contacts_sync(query, None)
 	return conflicts
 
-def get_conflict_contacts_by_group(contacts):
-	pass
+
+def narrow_conflicts_around_contact(conflicts, contact):
+	new = []
+	for c in conflicts:
+		ats = c.get_attributes(EBook.ContactField.TEL)
+		cf_numbers = frozenset(a.get_value() for a in ats)
+		if cf_numbers.intersection(contact.numbers):
+			new.append(c)
+	return new
 
 
 def meld_to_newer(c1, c2):
@@ -167,7 +166,9 @@ def try_solve_conflicts(newcontact, conflicts):
 	for other_existing in conflicts[1:]:
 		abook.remove_contact_sync(other_existing, None)
 		merge_contacts(existing, other_existing)
-	merge_contacts(existing, newcontact)
+	# Merge if differ
+	if get_different_fields(existing, newcontact):
+		merge_contacts(existing, newcontact)
 
 
 def merge_contacts(existing, pending):
