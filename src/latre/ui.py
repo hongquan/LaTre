@@ -44,18 +44,31 @@ class UIFactory():
 
 class VCardFileChooser:
 	def __init__(self, action=Gtk.FileChooserAction.OPEN):
-		self.dialog = Gtk.FileChooserDialog(action=action)
-		self.dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
-		self.dialog.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
-		self.dialog.set_select_multiple(True)
-		vcardfil = Gtk.FileFilter()
-		vcardfil.set_name('vCard files (*.vcf)')
-		vcardfil.add_pattern('*.vcf')
-		self.dialog.add_filter(vcardfil)
-		allfil = Gtk.FileFilter()
-		allfil.set_name('All files')
-		allfil.add_pattern('*.*')
-		self.dialog.add_filter(allfil)
+		title = _('Import') if action == Gtk.FileChooserAction.OPEN else _('Export')
+		self.dialog = dialog = Gtk.FileChooserDialog(title, action=action)
+		dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+		dialog.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
+		if action == Gtk.FileChooserAction.OPEN:
+			dialog.set_select_multiple(True)
+		else:
+			box = Gtk.VBox(False, 0)
+			rad1 = Gtk.RadioButton.new_with_label(None, _('One file per contact'))
+			rad2 = Gtk.RadioButton.new_with_label_from_widget(rad1, _('All to one file'))
+			rad1.connect('toggled', self.switch_saving, True)
+			rad2.connect('toggled', self.switch_saving, False)
+			box.pack_start(rad1, False, False, 0)
+			box.pack_start(rad2, False, False, 0)
+			box.show_all()
+			self.dialog.set_extra_widget(box)
+		if action == Gtk.FileChooserAction.OPEN or action == Gtk.FileChooserAction.SAVE:
+			vcardfil = Gtk.FileFilter()
+			vcardfil.set_name('{} (*.vcf)'.format(_('vCard files')))
+			vcardfil.add_pattern('*.vcf')
+			dialog.add_filter(vcardfil)
+			allfil = Gtk.FileFilter()
+			allfil.set_name(_('All files'))
+			allfil.add_pattern('*.*')
+			dialog.add_filter(allfil)
 
 	def run(self):
 		return self.dialog.run()
@@ -66,12 +79,32 @@ class VCardFileChooser:
 	def hide(self):
 		return self.dialog.hide()
 
+	def get_action(self):
+		return self.dialog.get_property('action')
+
+	def get_current_folder(self):
+		return self.dialog.get_current_folder()
+
+	def get_filename(self):
+		return self.dialog.get_filename()
+
 	def get_filenames(self):
 		files = self.dialog.get_filenames()
 		cur = self.dialog.get_current_folder()
 		if cur:
 			self.dialog.set_current_folder(cur)
 		return files
+
+	def set_current_name(self, name):
+		self.dialog.set_current_name(name)
+
+	def switch_saving(self, button, separating):
+		if not button.get_active():
+			return
+		if separating:
+			self.dialog.set_action(Gtk.FileChooserAction.SELECT_FOLDER)
+		else:
+			self.dialog.set_action(Gtk.FileChooserAction.SAVE)
 
 
 class LaTreUI(UIFactory):

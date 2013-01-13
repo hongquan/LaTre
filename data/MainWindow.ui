@@ -21,53 +21,13 @@
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="border_width">2</property>
         <child>
           <object class="GtkToolbar" id="toptoolbar">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <child>
-              <object class="GtkToolButton" id="import_btn">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Import</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-add</property>
-                <signal name="clicked" handler="on_import_btn_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="del_btn">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Remove</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-remove</property>
-                <signal name="clicked" handler="on_del_btn_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="clear_btn">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Clear</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-clear</property>
-                <signal name="clicked" handler="on_clear_btn_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
+            <style>
+              <class name="primary-toolbar"/>
+            </style>
             <child>
               <object class="GtkToolButton" id="quit_btn">
                 <property name="visible">True</property>
@@ -95,49 +55,128 @@
             <property name="can_focus">True</property>
             <property name="border_width">3</property>
             <child>
-              <object class="GtkScrolledWindow" id="scrolledwindow1">
+              <object class="GtkBox" id="box1">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkTreeView" id="contact_tree">
+                  <object class="GtkScrolledWindow" id="scrolledwindow1">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="model">contactlist</property>
-                    <property name="headers_visible">False</property>
-                    <property name="headers_clickable">False</property>
-                    <property name="search_column">0</property>
-                    <signal name="cursor-changed" handler="on_contact_tree_cursor_changed" swapped="no"/>
-                    <signal name="unselect-all" handler="on_contact_tree_unselect_all" swapped="no"/>
-                    <signal name="key-press-event" handler="on_contact_tree_key_press_event" swapped="no"/>
-                    <signal name="drag-data-received" handler="on_contact_tree_drag_data_received" swapped="no"/>
-                    <child internal-child="selection">
-                      <object class="GtkTreeSelection" id="contact_selection">
-                        <property name="mode">multiple</property>
-                      </object>
-                    </child>
                     <child>
-                      <object class="GtkTreeViewColumn" id="photo">
-                        <property name="title" translatable="yes">Photo</property>
-                        <child>
-                          <object class="GtkCellRendererPixbuf" id="cell_photo"/>
-                          <attributes>
-                            <attribute name="pixbuf">2</attribute>
-                          </attributes>
+                      <object class="GtkTreeView" id="contact_tree">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="model">contactlist</property>
+                        <property name="headers_visible">False</property>
+                        <property name="headers_clickable">False</property>
+                        <property name="search_column">0</property>
+                        <signal name="cursor-changed" handler="on_contact_tree_cursor_changed" swapped="no"/>
+                        <signal name="unselect-all" handler="on_contact_tree_unselect_all" swapped="no"/>
+                        <signal name="key-press-event" handler="on_contact_tree_key_press_event" swapped="no"/>
+                        <signal name="drag-data-received" handler="on_contact_tree_drag_data_received" swapped="no"/>
+                        <child internal-child="selection">
+                          <object class="GtkTreeSelection" id="contact_selection">
+                            <property name="mode">multiple</property>
+                          </object>
                         </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="name">
-                        <property name="title" translatable="yes">Name</property>
                         <child>
-                          <object class="GtkCellRendererText" id="cell_name"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
+                          <object class="GtkTreeViewColumn" id="photo">
+                            <property name="title" translatable="yes">Photo</property>
+                            <child>
+                              <object class="GtkCellRendererPixbuf" id="cell_photo"/>
+                              <attributes>
+                                <attribute name="pixbuf">2</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="name">
+                            <property name="title" translatable="yes">Name</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="cell_name"/>
+                              <attributes>
+                                <attribute name="text">0</attribute>
+                              </attributes>
+                            </child>
+                          </object>
                         </child>
                       </object>
                     </child>
                   </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolbar" id="contact_toolbar">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="icon_size">1</property>
+                    <style>
+                      <class name="inline-toolbar"/>
+                    </style>
+                    <child>
+                      <object class="GtkToolButton" id="btn_ct_add">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Import</property>
+                        <property name="icon_name">contact-new</property>
+                        <signal name="clicked" handler="on_btn_ct_add_clicked" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="btn_ct_remove">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Remove</property>
+                        <property name="icon_name">list-remove-symbolic</property>
+                        <signal name="clicked" handler="on_btn_ct_remove_clicked" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="btn_ct_clear">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Clear</property>
+                        <property name="icon_name">edit-clear-symbolic</property>
+                        <signal name="clicked" handler="on_btn_ct_clear_clicked" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="btn_ct_export">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Export</property>
+                        <property name="icon_name">browser-download</property>
+                        <signal name="clicked" handler="on_btn_ct_export_clicked" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
               </object>
               <packing>

@@ -58,6 +58,20 @@ def vcards_from_file(fil):
 		vcards.add(m.group(0))
 	return vcards
 
+def filename_with_numsuffix(filename):
+	i = -1
+	name, ext = os.path.splitext(filename)
+	while True:
+		i += 1
+		yield '{} ({}){}'.format(name, i, ext)
+
+def vcard_to_file(vcard, filename):
+	orig = filename
+	while os.path.exists(filename):
+		filename = filename_with_numsuffix(orig)
+	with open(filename, 'w') as fl:
+		fl.write(vcard)
+
 def contacts_identical(contact1, contact2):
 	cformat = getattr(EBook.VCardFormat, '30')
 	return (contact1.to_string(cformat) == contact2.to_string(cformat))

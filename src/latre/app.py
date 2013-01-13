@@ -49,11 +49,12 @@ class LaTreApp(Gtk.Application):
 		                                   Gdk.DragAction.COPY)
 		self.ui.contact_tree.drag_dest_add_uri_targets()
 		# Bind handlers to signals. The handler'name is suggested by Glade.
-		self.ui.connect_handlers([self.on_quit_btn_clicked, self.on_import_btn_clicked,
-		                          self.on_clear_btn_clicked,
+		self.ui.connect_handlers([self.on_quit_btn_clicked, self.on_btn_ct_add_clicked,
+		                          self.on_btn_ct_clear_clicked,
 		                          self.on_contact_tree_cursor_changed,
 		                          self.on_contact_tree_drag_data_received,
-		                          self.on_del_btn_clicked,
+		                          self.on_btn_ct_remove_clicked,
+		                          self.on_btn_ct_export_clicked,
 		                          self.on_mainwindow_realize])
 		self.ui.filechooser = None
 		self.ui.set_accel_quit(self.quit)
@@ -84,7 +85,7 @@ class LaTreApp(Gtk.Application):
 		self.quit()
 
 
-	def on_import_btn_clicked(self, widget, funcdata=None):
+	def on_btn_ct_add_clicked(self, widget, funcdata=None):
 		if self.ui.filechoose is None:
 			self.ui.filechooser = VCardFileChooser()
 		res = self.ui.filechooser.run()
@@ -101,7 +102,7 @@ class LaTreApp(Gtk.Application):
 			return
 
 
-	def on_del_btn_clicked(self, widget, funcdata=None):
+	def on_btn_ct_remove_clicked(self, widget, funcdata=None):
 		selection = self.ui.contact_selection
 		if selection.count_selected_rows() == 0:
 			return
@@ -120,7 +121,7 @@ class LaTreApp(Gtk.Application):
 
 
 	def populate_contact_list(self):
-		self.ui.import_btn.set_sensitive(False)
+		self.ui.btn_ct_add.set_sensitive(False)
 		abook.get_contacts('#t', None, self.load_contacts_done, None)
 
 
@@ -128,7 +129,7 @@ class LaTreApp(Gtk.Application):
 		r, contacts = source.get_contacts_finish(res)
 		if r:
 			[self.ui.add_contact_to_treeview(c) for c in contacts]
-		self.ui.import_btn.set_sensitive(True)
+		self.ui.btn_ct_add.set_sensitive(True)
 		#self.ui.contact_tree.connect('size-allocate', self.on_contact_tree_size_allocate)
 		# For a short time later, the 'size-allocate' will be emitted, but
 		# we don't want the autoscroll is active right
@@ -153,6 +154,7 @@ class LaTreApp(Gtk.Application):
 			adj.set_value(diff)
 
 
+	# Callback when a list row is selected. We will show contact then.
 	def on_contact_tree_cursor_changed(self, treeview):
 		selection = treeview.get_selection()
 		if not selection or selection.count_selected_rows() != 1:
@@ -170,7 +172,7 @@ class LaTreApp(Gtk.Application):
 		model.contacts_to_edataserver_by_group(contacts, self.contacts_import_done)
 
 
-	def on_clear_btn_clicked(self, widget):
+	def on_btn_ct_clear_clicked(self, widget):
 		dialog = RemovePromptDialog(_('all contacts'))
 		response = dialog.run()
 		dialog.destroy()
@@ -182,6 +184,49 @@ class LaTreApp(Gtk.Application):
 		r = abook.remove_contacts_sync(uids, None)
 		if r:
 			self.ui.contactlist.clear()
+
+
+	def on_btn_ct_export_clicked(self, widget):
+		# If no contact is chosen, we export all.
+		# Otherwise, export selected contacts
+		selection = self.ui.contact_selection
+		dialog = VCardFileChooser(Gtk.FileChooserAction.SELECT_FOLDER)
+		#dialog.set_current_name('Exported contacts')
+		resp = dialog.run()
+		action = dialog.get_action()
+		if action == Gtk.FileChooserAction.SELECT_FOLDER:
+			folder = dialog.get_current_folder()
+		else:
+			filename = dialog.get_filename()
+			if not filename.endswith('.vcf'):
+				filename = filename + '.vcf'
+		dialog.destroy()
+		if resp != Gtk.ResponseType.OK:
+			return
+		Gtk.main_iteration()
+		liststore, paths = selection.get_selected_rows()
+		if paths:
+			uids = (liststore[p][COL_UID] for p in paths)
+		else:
+			uids = None
+
+		if action == Gtk.FileChooserAction.SELECT_FOLDER:
+			if uids:
+				vcards_iter = model.export_vcards_by_uids(uids, True)
+			else:
+				vcards_iter = model.export_vcards_all(True)
+			for vc, name in vcards_iter:
+				if not name:
+					continue
+				filename = os.path.join(folder, name + '.vcf')
+				data.vcard_to_file(vc, filename)
+		else:
+			if uids:
+				vcards = model.export_vcards_by_uids(uids)
+			else:
+				vcards = model.export_vcards_all()
+			with open(filename, 'w') as fl:
+				fl.write('\n'.join(vcards))
 
 
 	def quit(self):
