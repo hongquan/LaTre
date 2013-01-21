@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import math
 import urllib.parse
 import gettext
 
@@ -111,9 +112,24 @@ class LaTreUI(UIFactory):
 	def __init__(self):
 		f = data.uifile('MainWindow')
 		super(LaTreUI, self).__init__(f)
+		self.make_photos_rounded()
 		self._pending_handlers.extend([self.on_contact_tree_key_press_event,
 		                               self.on_contact_tree_unselect_all,
 		                               self.on_contact_selection_changed])
+
+	def make_photos_rounded(self):
+		self.contactphoto._todraw = True  # Prevent the callback below from acting second time.
+		self.contactphoto.connect('draw', self.round_contact_photo)
+		# TODO: Rounded corner for photos in list.
+
+	def round_contact_photo(self, widget, cairo_ctx, user_data=None):
+		# Prevent drawing being done second time.
+		widget._todraw = not widget._todraw
+		if not widget._todraw:
+			return
+		size = widget.get_pixel_size()
+		cairo_rounded_box(cairo_ctx, 0, 0, size, size, 4)
+		cairo_ctx.clip()
 
 	def set_accel_quit(self, callback):
 		agroup = Gtk.AccelGroup()
@@ -265,3 +281,25 @@ class RemovePromptDialog(Gtk.Dialog):
 		label.set_justify(Gtk.Justification.CENTER)
 		self.vbox.pack_start(label, True, True, 10)
 		self.vbox.show_all()
+
+
+####  Functions  ####
+
+def cairo_rounded_box(cairo_ctx, x, y, width, height, radius):
+	cairo_ctx.new_sub_path()
+	cairo_quater_arc(cairo_ctx, x+radius, y+radius, radius, 3)
+	cairo_quater_arc(cairo_ctx, x+width-radius, y+radius, radius, 4)
+	cairo_quater_arc(cairo_ctx, x+width-radius, y+height-radius, radius, 1)
+	cairo_quater_arc(cairo_ctx, x+radius, y+height-radius, radius, 2)
+
+
+def cairo_quater_arc(cairo_ctx, xc, yc, radius, quater):
+	assert type(quater) == int and quater > 0
+	if radius <= 0.0:
+		cairo_ctx.line_to(xc, yc)
+		return
+	cairo_ctx.save()
+	cairo_ctx.translate(xc, yc)
+	start, end = (quater - 1)*math.pi/2, quater*math.pi/2
+	cairo_ctx.arc(0, 0, radius, start, end)
+	cairo_ctx.restore()

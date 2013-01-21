@@ -3,7 +3,7 @@
 import os.path
 
 appname = 'Lá Tre'
-version = '0.3.0'
+version = '0.3.1'
 package = 'latre'
 parentloc = '/usr'
 userloc = os.path.expanduser('~')
