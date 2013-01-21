@@ -1,4 +1,4 @@
-latre (0.3-build1) quantal; urgency=low
+latre (0.3.0-build1) quantal; urgency=low
 
   * Support exporting contact.
   * Change UI.
