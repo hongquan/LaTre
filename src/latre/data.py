@@ -5,6 +5,7 @@ import re
 import urllib.parse
 import concurrent.futures
 from gi.repository import EBook
+from gi.repository.EBookContacts import Contact
 from . import config
 
 _data_dir = config.data_dir
@@ -40,7 +41,7 @@ def contacts_from_files(files):
 		if f.exception() is None:
 			vcs = f.result()
 			vcards = vcards.union(vcs)
-	contacts = [EBook.Contact.new_from_vcard(v) for v in vcards]
+	contacts = [Contact.new_from_vcard(v) for v in vcards]
 	return contacts
 
 def vcards_from_file(fil):

@@ -9,7 +9,8 @@ from gi.repository import GLib
 from gi.repository import Gdk
 from gi.repository import GdkPixbuf
 from gi.repository import EBook
-from gi._glib import GError
+from gi.repository.GLib import GError
+from gi.repository.EBookContacts import Contact, ContactField
 
 from . import data
 from . import model
@@ -222,18 +223,18 @@ class LaTreUI(UIFactory):
 		# There is a bug in libebook that using Contact.get_poperty() does not
 		# retrieve all phone numbers. So we will apply a trick here.
 		all_numbers = set()    # All numbers found in vcard.
-		tels = contact.get_attributes(EBook.ContactField.TEL)
+		tels = contact.get_attributes(ContactField.TEL)
 		all_numbers = set([t.get_value() for t in tels])
 
 		counted = set()      # Numbers get via Contact.get_poperty()
 		for p in PHONE_PROPS:
 			field = p.replace('-', '_')
-			fid = EBook.Contact.field_id(field)
+			fid = Contact.field_id(field)
 			value = contact.get_property(p)
 			if not value or value == '' or value in counted:
 				continue
 			counted.add(value)
-			name = EBook.Contact.pretty_name(fid)
+			name = Contact.pretty_name(fid)
 			# Add to UI
 			row = self.phonenumber_to_ui(name, value)
 			grid.pack_start(row, False, True, 0)
@@ -244,9 +245,9 @@ class LaTreUI(UIFactory):
 		for attr in remains:
 			type_params = attr.get_param('TYPE')
 			if 'CELL' in type_params:
-				name = EBook.Contact.pretty_name(EBook.ContactField.PHONE_MOBILE)
+				name = Contact.pretty_name(ContactField.PHONE_MOBILE)
 			else:
-				name = EBook.Contact.pretty_name(EBook.ContactField.PHONE_OTHER)
+				name = Contact.pretty_name(ContactField.PHONE_OTHER)
 			value = attr.get_value()
 			row = self.phonenumber_to_ui(name, value)
 			grid.pack_start(row, False, True, 0)

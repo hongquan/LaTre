@@ -7,6 +7,7 @@ from . import config
 
 from gi.repository import EDataServer
 from gi.repository import EBook
+from gi.repository.EBookContacts import ContactField, BookQuery, BookQueryTest
 
 PHONE_PROPS = (
 	'primary-phone',
@@ -45,7 +46,7 @@ def get_contacts_by_uids(uids):
 	# Build query
 	queries = []
 	for i in uids:
-		q = EBook.BookQuery.field_test(EBook.ContactField.UID, EBook.BookQueryTest.IS, i)
+		q = BookQuery.field_test(ContactField.UID, BookQueryTest.IS, i)
 		queries.append(q.to_string())
 	query = "(or {})".format(' '.join(queries))
 	r, cons = abook.get_contacts_sync(query, None)
@@ -120,7 +121,7 @@ def reduce_to_uniques(contacts):
 	''' Combines contacts which share 1 or more phone numbers.
 	Return list of separated contacts '''
 	for c in contacts:
-		ats = c.get_attributes(EBook.ContactField.TEL)
+		ats = c.get_attributes(ContactField.TEL)
 		c.numbers = frozenset(a.get_value() for a in ats)
 
 	if len(contacts) == 1:
@@ -145,7 +146,7 @@ def reduce_to_uniques(contacts):
 def make_query_test_any_number_exist(numbers):
 	queries = []
 	for n in numbers:
-		q = EBook.BookQuery.vcard_field_test('TEL', EBook.BookQueryTest.CONTAINS, n)
+		q = BookQuery.vcard_field_test('TEL', BookQueryTest.CONTAINS, n)
 		queries.append(q.to_string())
 	return "(or {})".format(' '.join(queries))
 
@@ -154,7 +155,7 @@ def get_conflicts_of_contact(contact):
 	''' Search among existing contacts for the one having
 	1 same phone number as the given contact. '''
 	# Build query
-	ats = contact.get_attributes(EBook.ContactField.TEL)
+	ats = contact.get_attributes(ContactField.TEL)
 	numbers = frozenset(a.get_value() for a in ats)
 	query = make_query_test_any_number_exist(numbers)
 	# Apply query
@@ -165,7 +166,7 @@ def get_conflicts_of_contact(contact):
 def narrow_conflicts_around_contact(conflicts, contact):
 	new = []
 	for c in conflicts:
-		ats = c.get_attributes(EBook.ContactField.TEL)
+		ats = c.get_attributes(ContactField.TEL)
 		cf_numbers = frozenset(a.get_value() for a in ats)
 		if cf_numbers.intersection(contact.numbers):
 			new.append(c)
@@ -182,7 +183,7 @@ def meld_to_newer(c1, c2):
 	else:
 		c = mix_phones(c2, c1)
 	# Update numbers set
-	ats = c.get_attributes(EBook.ContactField.TEL)
+	ats = c.get_attributes(ContactField.TEL)
 	c.numbers = frozenset(a.get_value() for a in ats)
 	return c
 
@@ -235,12 +236,12 @@ def get_different_fields(existing, pending):
 
 def mix_phones(existing, pending):
 	''' Mix phone numbers from pending contact to existing contact. '''
-	tel1 = existing.get_attributes(EBook.ContactField.TEL)
-	tel2 = pending.get_attributes(EBook.ContactField.TEL)
+	tel1 = existing.get_attributes(ContactField.TEL)
+	tel2 = pending.get_attributes(ContactField.TEL)
 	oldnumbers = [t.get_value() for t in tel1]
 	# Get only new phone numbers from pending contact
 	newtels = [t for t in tel2 if t.get_value() not in oldnumbers]
 	# Add these new phone numbers to existing contact
 	newtels.extend(tel1)
-	existing.set_attributes(EBook.ContactField.TEL, newtels)
+	existing.set_attributes(ContactField.TEL, newtels)
 	return existing
