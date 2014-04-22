@@ -9,7 +9,7 @@ X-Python3-Version: >= 3.1
 
 Package: latre
 Architecture: all
-Depends: gir1.2-gtk-3.0, gir1.2-ebook-1.2, gir1.2-edataserver-1.2, gir1.2-ebookcontacts-1.2, ${misc:Depends}, python3-gi
+Depends: gir1.2-gtk-3.0, gir1.2-ebook-1.2, gir1.2-edataserver-1.2, gir1.2-ebookcontacts-1.2, ${misc:Depends}, python3-gi, python3-dateutil
 Description: A phonebook app
  Lá Tre allows to import contacts from vCard files, delete contacts, which GNOME Contacts is missing at the time Lá Tre is born.
  This app uses the same storage as GNOME Contacts, so the contacts can be seen in both applications.

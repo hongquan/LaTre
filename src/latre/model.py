@@ -2,12 +2,18 @@
 
 import difflib
 import re
+import logging
 import datetime
-from . import config
+import dateutil.parser
 
 from gi.repository import EDataServer
 from gi.repository import EBook
-from gi.repository.EBookContacts import ContactField, BookQuery, BookQueryTest
+from gi.repository.EBookContacts import Contact, ContactField, BookQuery, \
+                                        BookQueryTest, VCardFormat
+
+from . import config
+
+logging.basicConfig(filename='/tmp/latre.log', filemode='w', level=logging.DEBUG)
 
 PHONE_PROPS = (
 	'primary-phone',
@@ -62,7 +68,7 @@ def get_contacts_all():
 
 def contact_to_vcard_string(contact, return_name=False):
 	contact.inline_local_photos()
-	vcard = contact.to_string(getattr(EBook.VCardFormat, '30'))
+	vcard = contact.to_string(getattr(VCardFormat, '30'))
 	if return_name:
 		name = get_repr_name(contact)
 		return vcard, name
@@ -175,9 +181,9 @@ def narrow_conflicts_around_contact(conflicts, contact):
 
 def meld_to_newer(c1, c2):
 	rev1 = c1.get_property('Rev')
-	d1 = datetime.datetime.strptime(rev1, '%Y-%m-%dT%H:%M:%SZ')
+	d1 = dateutil.parser.parse(rev1)
 	rev2 = c2.get_property('Rev')
-	d2 = datetime.datetime.strptime(rev2, '%Y-%m-%dT%H:%M:%SZ')
+	d2 = dateutil.parser.parse(rev2)
 	if d1 >= d2:
 		c = mix_phones(c1, c2)
 	else:
@@ -210,7 +216,11 @@ def merge_contacts(existing, pending):
 			existing = mix_phones(existing, pending)
 		else:
 			# Replace other fields of existing contact with pending's ones
-			field = EBook.Contact.field_id_from_vcard(vcfield)
+			try:
+				field = Contact.field_id_from_vcard(vcfield)
+			except ValueError:
+				logging.info('Field %s seems not to be supported', vcfield)
+				continue
 			new_attrs = pending.get_attributes(field)
 			existing.set_attributes(field, new_attrs)
 	abook.modify_contact_sync(existing, None)
@@ -218,8 +228,8 @@ def merge_contacts(existing, pending):
 
 def get_different_fields(existing, pending):
 	''' At which field two contacts differ? '''
-	c1 = existing.to_string(getattr(EBook.VCardFormat, '30'))
-	c2 = pending.to_string(getattr(EBook.VCardFormat, '30'))
+	c1 = existing.to_string(getattr(VCardFormat, '30'))
+	c2 = pending.to_string(getattr(VCardFormat, '30'))
 	diffields = set()
 	for line in difflib.unified_diff(c1.splitlines(), c2.splitlines()):
 		if len(line) < 3:

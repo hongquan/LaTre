@@ -29,7 +29,7 @@ class LaTreApp(Gtk.Application):
 	# Ref: http://www.micahcarrick.com/tutorials/autotools-tutorial-python-gtk/getting-started.html
 	# http://www.micahcarrick.com/gtk3-python-hello-world.html
 	def __init__(self, version='0.1'):
-		super(LaTreApp, self).__init__(application_id='apps.vn.sodien',
+		super(LaTreApp, self).__init__(application_id='apps.vn.latre',
 		                               flags=Gio.ApplicationFlags.FLAGS_NONE)
 		self.set_ui()
 		self._autoscroll_allow = 0
