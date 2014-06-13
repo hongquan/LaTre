@@ -1,13 +1,15 @@
 #! /usr/bin/env python3
 
-import difflib
 import re
+import difflib
 import logging
 import datetime
+import unicodedata
 import dateutil.parser
 
-from gi.repository import EDataServer
+import unidecode
 from gi.repository import EBook
+from gi.repository import EDataServer
 from gi.repository.EBookContacts import Contact, ContactField, BookQuery, \
                                         BookQueryTest, VCardFormat
 
@@ -41,12 +43,14 @@ def get_first_phone(contact):
 		if prop:
 			return prop
 
+
 def get_repr_name(contact):
 	''' Get name to represent. May be name or phone number or email '''
 	try:
 		return contact.get_property('name').to_string()
 	except AttributeError:
 		return get_first_phone(contact) or contact.get_property('email-1')
+
 
 def get_contacts_by_uids(uids):
 	# Build query
@@ -60,28 +64,37 @@ def get_contacts_by_uids(uids):
 		return cons
 	return []
 
+
 def get_contacts_all():
 	r, cons = abook.get_contacts_sync('#t', None)
 	if r:
 		return cons
 	return []
 
-def contact_to_vcard_string(contact, return_name=False):
+
+def contact_to_vcard_string(contact, options={}, return_name=False):
 	contact.inline_local_photos()
-	vcard = contact.to_string(getattr(VCardFormat, '30'))
+	version = options.get('vcard_version', '21')
+	vcard = contact.to_string(getattr(VCardFormat, version))
+	if options.get('to_compose_unicode'):
+		vcard = unicodedata.normalize('NFC', vcard)
+	if options.get('to_strip_unicode'):
+		vcard = unidecode.unidecode(vcard)
 	if return_name:
 		name = get_repr_name(contact)
 		return vcard, name
 	else:
 		return vcard
 
-def export_vcards_all(return_name=False):
-	for c in get_contacts_all():
-		yield contact_to_vcard_string(c, return_name)
 
-def export_vcards_by_uids(uids, return_name=False):
+def export_vcards_all(options={}, return_name=False):
+	for c in get_contacts_all():
+		yield contact_to_vcard_string(c, options, return_name)
+
+
+def export_vcards_by_uids(uids, options={}, return_name=False):
 	for c in get_contacts_by_uids(uids):
-		yield contact_to_vcard_string(c, return_name)
+		yield contact_to_vcard_string(c, options, return_name)
 
 
 def contacts_to_edataserver_one_by_one(contacts, callback):

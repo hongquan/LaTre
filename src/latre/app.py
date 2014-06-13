@@ -29,8 +29,8 @@ class LaTreApp(Gtk.Application):
 	# Ref: http://www.micahcarrick.com/tutorials/autotools-tutorial-python-gtk/getting-started.html
 	# http://www.micahcarrick.com/gtk3-python-hello-world.html
 	def __init__(self, version='0.1'):
-		super(LaTreApp, self).__init__(application_id='apps.vn.latre',
-		                               flags=Gio.ApplicationFlags.FLAGS_NONE)
+		super().__init__(application_id='apps.vn.latre',
+		                 flags=Gio.ApplicationFlags.FLAGS_NONE)
 		self.set_ui()
 		self._autoscroll_allow = 0
 
@@ -200,6 +200,12 @@ class LaTreApp(Gtk.Application):
 			filename = dialog.get_filename()
 			if not filename.endswith('.vcf'):
 				filename = filename + '.vcf'
+		# Get options
+		options = {
+			'vcard_version': dialog.vcard_version,
+			'to_compose_unicode': dialog.to_compose_unicode,
+			'to_strip_unicode': dialog.to_strip_unicode
+		}
 		dialog.destroy()
 		if resp != Gtk.ResponseType.OK:
 			return
@@ -210,21 +216,23 @@ class LaTreApp(Gtk.Application):
 		else:
 			uids = None
 
+		# Chose to save as separated files
 		if action == Gtk.FileChooserAction.SELECT_FOLDER:
 			if uids:
-				vcards_iter = model.export_vcards_by_uids(uids, True)
+				vcards_iter = model.export_vcards_by_uids(uids, options, True)
 			else:
-				vcards_iter = model.export_vcards_all(True)
+				vcards_iter = model.export_vcards_all(options, True)
 			for vc, name in vcards_iter:
 				if not name:
 					continue
 				filename = os.path.join(folder, name + '.vcf')
 				data.vcard_to_file(vc, filename)
+		# Chose to save to common file.
 		else:
 			if uids:
-				vcards = model.export_vcards_by_uids(uids)
+				vcards = model.export_vcards_by_uids(uids, options)
 			else:
-				vcards = model.export_vcards_all()
+				vcards = model.export_vcards_all(options)
 			with open(filename, 'w') as fl:
 				fl.write('\n'.join(vcards))
 

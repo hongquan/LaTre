@@ -44,6 +44,7 @@ class UIFactory():
 		handlersdict = dict([(h.__name__, h) for h in handlers])
 		self.connect_signals(handlersdict)
 
+
 class VCardFileChooser:
 	def __init__(self, action=Gtk.FileChooserAction.OPEN):
 		title = _('Import') if action == Gtk.FileChooserAction.OPEN else _('Export')
@@ -53,15 +54,28 @@ class VCardFileChooser:
 		if action == Gtk.FileChooserAction.OPEN:
 			dialog.set_select_multiple(True)
 		else:
-			box = Gtk.VBox(False, 0)
-			rad1 = Gtk.RadioButton.new_with_label(None, _('One file per contact'))
-			rad2 = Gtk.RadioButton.new_with_label_from_widget(rad1, _('All to one file'))
-			rad1.connect('toggled', self.switch_saving, True)
-			rad2.connect('toggled', self.switch_saving, False)
-			box.pack_start(rad1, False, False, 0)
-			box.pack_start(rad2, False, False, 0)
-			box.show_all()
-			self.dialog.set_extra_widget(box)
+			grid = Gtk.Grid()
+			grid.set_column_spacing(4)
+			opt_per = Gtk.RadioButton.new_with_label(None, _('One file per contact'))
+			opt_bulk = Gtk.RadioButton.\
+			           new_with_label_from_widget(opt_per, _('All to one file'))
+			self.opt_v2 = opt_v2 = Gtk.RadioButton.new_with_label(None, _('Ver 2.1'))
+			opt_v3 = Gtk.RadioButton.\
+			         new_with_label_from_widget(opt_v2, _('Ver 3.0'))
+			self.opt_prec = Gtk.CheckButton.new_with_label(_('Compose Unicode'))
+			self.opt_strp = Gtk.CheckButton.new_with_label(_('Strip Unicode'))
+			opt_per.connect('toggled', self.switch_saving, True)
+			opt_bulk.connect('toggled', self.switch_saving, False)
+			grid.attach(opt_per, 0, 0, 1, 1)
+			grid.attach_next_to(opt_bulk, opt_per, Gtk.PositionType.BOTTOM, 1, 1)
+			grid.attach_next_to(opt_v2, opt_per, Gtk.PositionType.RIGHT, 1, 1)
+			grid.attach_next_to(opt_v3, opt_v2, Gtk.PositionType.BOTTOM, 1, 1)
+			grid.attach_next_to(self.opt_prec, opt_v2, Gtk.PositionType.RIGHT, 1, 1)
+			grid.attach_next_to(self.opt_strp, self.opt_prec,
+								Gtk.PositionType.BOTTOM, 1, 1)
+			grid.show_all()
+			self.dialog.set_extra_widget(grid)
+
 		if action == Gtk.FileChooserAction.OPEN or action == Gtk.FileChooserAction.SAVE:
 			vcardfil = Gtk.FileFilter()
 			vcardfil.set_name('{} (*.vcf)'.format(_('vCard files')))
@@ -71,6 +85,18 @@ class VCardFileChooser:
 			allfil.set_name(_('All files'))
 			allfil.add_pattern('*.*')
 			dialog.add_filter(allfil)
+
+	@property
+	def vcard_version(self):
+		return '21' if self.opt_v2.get_active() else '30'
+
+	@property
+	def to_compose_unicode(self):
+		return self.opt_prec.get_active()
+
+	@property
+	def to_strip_unicode(self):
+		return self.opt_strp.get_active()
 
 	def run(self):
 		return self.dialog.run()
@@ -112,7 +138,7 @@ class VCardFileChooser:
 class LaTreUI(UIFactory):
 	def __init__(self):
 		f = data.uifile('MainWindow')
-		super(LaTreUI, self).__init__(f)
+		super().__init__(f)
 		self.make_photos_rounded()
 		self._pending_handlers.extend([self.on_contact_tree_key_press_event,
 		                               self.on_contact_tree_unselect_all,
