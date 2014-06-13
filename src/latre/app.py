@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 import os
-import concurrent.futures
+import sys
 import gettext
-from gi.repository import GLib, Gtk, Gio, Gdk
+import concurrent.futures
 
-from gi.repository import EDataServer
 from gi.repository import EBook
+from gi.repository import EDataServer
+from gi.repository import GLib, Gtk, Gio, Gdk
 
 from . import config
 from . import data
@@ -198,6 +199,9 @@ class LaTreApp(Gtk.Application):
 			folder = dialog.get_current_folder()
 		else:
 			filename = dialog.get_filename()
+			if not filename:
+				print('No file set', file=sys.stderr)
+				return
 			if not filename.endswith('.vcf'):
 				filename = filename + '.vcf'
 		# Get options
@@ -244,7 +248,11 @@ class LaTreApp(Gtk.Application):
 
 	# Callback for the case of adding multiple contacts
 	def contacts_import_done(self, client, res, user_data):
-		success, uids = client.add_contacts_finish(res)
+		try:
+			success, uids = client.add_contacts_finish(res)
+		except GLib.GError as e:
+			print(e, file=sys.stderr)
+			return
 		if not success:
 			return
 		cons = model.get_contacts_by_uids(uids)
