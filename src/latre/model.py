@@ -31,6 +31,7 @@ PHONE_PROPS = (
 	'car-phone',
 	'pager'
 )
+SEXP_ANY = BookQuery.any_field_contains('').to_string()
 
 registry = EDataServer.SourceRegistry.new_sync(None)
 source = registry.ref_builtin_address_book()
@@ -66,7 +67,7 @@ def get_contacts_by_uids(uids):
 
 
 def get_contacts_all():
-	r, cons = abook.get_contacts_sync('#t', None)
+	r, cons = abook.get_contacts_sync(SEXP_ANY, None)
 	if r:
 		return cons
 	return []
@@ -194,9 +195,15 @@ def narrow_conflicts_around_contact(conflicts, contact):
 
 def meld_to_newer(c1, c2):
 	rev1 = c1.get_property('Rev')
-	d1 = dateutil.parser.parse(rev1)
 	rev2 = c2.get_property('Rev')
-	d2 = dateutil.parser.parse(rev2)
+	if rev1 and rev2:
+		d1 = dateutil.parser.parse(rev1)
+		d2 = dateutil.parser.parse(rev2)
+	elif not rev2:
+		d1 = d2 = 0
+	else:
+		d2 = 1
+		d1 = 0
 	if d1 >= d2:
 		c = mix_phones(c1, c2)
 	else:

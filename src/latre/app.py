@@ -11,8 +11,8 @@ from gi.repository import GLib, Gtk, Gio, Gdk
 
 from . import config
 from . import data
-from .model import abook
 from .ui import COL_UID, COL_NAME
+from .model import abook, SEXP_ANY
 from .ui import LaTreUI, VCardFileChooser, RemovePromptDialog
 
 from . import model
@@ -123,7 +123,7 @@ class LaTreApp(Gtk.Application):
 
 	def populate_contact_list(self):
 		self.ui.btn_ct_add.set_sensitive(False)
-		abook.get_contacts('#t', None, self.load_contacts_done, None)
+		abook.get_contacts(SEXP_ANY, None, self.load_contacts_done, None)
 
 
 	def load_contacts_done(self, source, res, user_data):
@@ -179,7 +179,7 @@ class LaTreApp(Gtk.Application):
 		dialog.destroy()
 		if response != Gtk.ResponseType.ACCEPT:
 			return
-		r, uids = abook.get_contacts_uids_sync('#t', None)
+		r, uids = abook.get_contacts_uids_sync(SEXP_ANY, None)
 		if not r:
 			return
 		r = abook.remove_contacts_sync(uids, None)
