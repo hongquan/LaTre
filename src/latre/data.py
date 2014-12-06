@@ -67,9 +67,9 @@ def filename_with_numsuffix(filename):
 		yield '{} ({}){}'.format(name, i, ext)
 
 def vcard_to_file(vcard, filename):
-	orig = filename
+	pool = filename_with_numsuffix(filename)
 	while os.path.exists(filename):
-		filename = filename_with_numsuffix(orig)
+		filename = next(pool)
 	with open(filename, 'w') as fl:
 		fl.write(vcard)
 
