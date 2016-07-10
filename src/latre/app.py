@@ -5,6 +5,10 @@ import sys
 import gettext
 import concurrent.futures
 
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('EBook', '1.2')
+
 from gi.repository import EBook
 from gi.repository import EDataServer
 from gi.repository import GLib, Gtk, Gio, Gdk
@@ -88,7 +92,7 @@ class LaTreApp(Gtk.Application):
 
 	def on_btn_ct_add_clicked(self, widget, funcdata=None):
 		if self.ui.filechoose is None:
-			self.ui.filechooser = VCardFileChooser()
+			self.ui.filechooser = VCardFileChooser(self.ui.mainwindow)
 		res = self.ui.filechooser.run()
 		if res == Gtk.ResponseType.OK:
 			files = self.ui.filechooser.get_filenames()
@@ -191,7 +195,8 @@ class LaTreApp(Gtk.Application):
 		# If no contact is chosen, we export all.
 		# Otherwise, export selected contacts
 		selection = self.ui.contact_selection
-		dialog = VCardFileChooser(Gtk.FileChooserAction.SELECT_FOLDER)
+		dialog = VCardFileChooser(self.ui.mainwindow,
+		                          Gtk.FileChooserAction.SELECT_FOLDER)
 		#dialog.set_current_name('Exported contacts')
 		resp = dialog.run()
 		action = dialog.get_action()

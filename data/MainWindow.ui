@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.18.3 -->
 <interface>
-  <!-- interface-requires gtk+ 3.0 -->
+  <requires lib="gtk+" version="3.10"/>
   <object class="GtkListStore" id="contactlist">
     <columns>
       <!-- column-name name -->
@@ -18,16 +19,14 @@
     <property name="default_width">400</property>
     <signal name="realize" handler="on_mainwindow_realize" swapped="no"/>
     <child>
-      <object class="GtkVBox" id="vbox1">
+      <object class="GtkBox" id="vbox1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GtkToolbar" id="toptoolbar">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <style>
-              <class name="primary-toolbar"/>
-            </style>
             <child>
               <object class="GtkToolButton" id="quit_btn">
                 <property name="visible">True</property>
@@ -42,6 +41,9 @@
                 <property name="homogeneous">True</property>
               </packing>
             </child>
+            <style>
+              <class name="primary-toolbar"/>
+            </style>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -50,7 +52,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkHPaned" id="mainpane">
+          <object class="GtkPaned" id="mainpane">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="border_width">3</property>
@@ -72,9 +74,9 @@
                         <property name="headers_clickable">False</property>
                         <property name="search_column">0</property>
                         <signal name="cursor-changed" handler="on_contact_tree_cursor_changed" swapped="no"/>
-                        <signal name="unselect-all" handler="on_contact_tree_unselect_all" swapped="no"/>
-                        <signal name="key-press-event" handler="on_contact_tree_key_press_event" swapped="no"/>
                         <signal name="drag-data-received" handler="on_contact_tree_drag_data_received" swapped="no"/>
+                        <signal name="key-press-event" handler="on_contact_tree_key_press_event" swapped="no"/>
+                        <signal name="unselect-all" handler="on_contact_tree_unselect_all" swapped="no"/>
                         <child internal-child="selection">
                           <object class="GtkTreeSelection" id="contact_selection">
                             <property name="mode">multiple</property>
@@ -116,9 +118,6 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="icon_size">1</property>
-                    <style>
-                      <class name="inline-toolbar"/>
-                    </style>
                     <child>
                       <object class="GtkToolButton" id="btn_ct_add">
                         <property name="visible">True</property>
@@ -171,6 +170,9 @@
                         <property name="homogeneous">True</property>
                       </packing>
                     </child>
+                    <style>
+                      <class name="inline-toolbar"/>
+                    </style>
                   </object>
                   <packing>
                     <property name="expand">False</property>

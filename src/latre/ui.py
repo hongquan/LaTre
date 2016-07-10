@@ -46,9 +46,9 @@ class UIFactory():
 
 
 class VCardFileChooser:
-	def __init__(self, action=Gtk.FileChooserAction.OPEN):
+	def __init__(self, parent=None, action=Gtk.FileChooserAction.OPEN):
 		title = _('Import') if action == Gtk.FileChooserAction.OPEN else _('Export')
-		self.dialog = dialog = Gtk.FileChooserDialog(title, action=action)
+		self.dialog = dialog = Gtk.FileChooserDialog(title, parent, action=action)
 		dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
 		dialog.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
 		if action == Gtk.FileChooserAction.OPEN:
